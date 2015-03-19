@@ -92,6 +92,10 @@ class ManualImageCropEditorWindow {
 					exit;
 				}
 				$src_file = str_replace($uploadsDir['baseurl'], $uploadsDir['basedir'], $src_file_url[0]);
+                // If the file doesn't exist locally get the size from the URL
+                if (!file_exists($src_file)) {
+                    $src_file = $src_file_url[0];
+                }
 				$sizes = getimagesize($src_file);
 
 				$previewWidth = min($sizes[0], 500);

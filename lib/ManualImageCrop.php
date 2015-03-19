@@ -282,6 +282,9 @@ setInterval(function() {
             	exit;
         	}
         }
+
+        // Move to CDN if an action is available
+        do_action('move_to_cdn', $_POST['attachmentId'], $dst_file);
         
 		// Generate Retina Image
 		if( isset( $_POST['make2x'] ) && $_POST['make2x'] === 'true' ) {
@@ -327,6 +330,9 @@ setInterval(function() {
 					}
 				}
 			}
+
+            // Move to CDN if an action is available
+            do_action('move_to_cdn', $_POST['attachmentId'], $dst_file2x);
 		}
 		// update 'mic_make2x' option status to persist choice  
 		if( isset( $_POST['make2x'] ) && $_POST['make2x'] !== get_option('mic_make2x') ) {
