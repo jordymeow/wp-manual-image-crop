@@ -1,0 +1,13 @@
+{
+    "name": "spinmedia/wp-manual-image-crop",
+    "type": "wordpress-plugin",
+    "require": {
+        "composer/installers": "~1.0"
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url" : "git@github.com:SpinMedia/wp-manual-image-crop.git"
+        }
+    ]
+}
