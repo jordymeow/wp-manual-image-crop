@@ -34,6 +34,19 @@ class ManualImageCropEditorWindow {
 
 			$imageSizes = get_intermediate_image_sizes();
 
+            // Loop over sizes and unset those that are going to be hidden, this is used when setting the default and cannot be for a hidden tab
+            foreach ($imageSizes as $index => $s) {
+                if (isset($_wp_additional_image_sizes[$s])) {
+                    $sizesSettings[$s]['crop_method'] = $_wp_additional_image_sizes[$s]['crop'];
+                } else {
+                    $sizesSettings[$s]['crop_method'] = get_option($s.'_crop');
+                }
+                if ( $sizesSettings[$s]['visibility'] == 'hidden' || $sizesSettings[$s]['crop_method'] == 0) {
+                    unset($imageSizes[$index]);
+                }
+            }
+
+            $imageSizes = array_values($imageSizes);
 			$editedSize = isset( $_GET['size'] ) ? $_GET['size'] : $imageSizes[0];
 			
             $sizeLabels = apply_filters( 'image_size_names_choose', array(
@@ -52,13 +65,8 @@ class ManualImageCropEditorWindow {
 				if ( $sizesSettings[$s]['visibility'] == 'hidden') {
 					continue;
 				}
-				
-				if (isset($_wp_additional_image_sizes[$s])) {
-					$cropMethod = $_wp_additional_image_sizes[$s]['crop'];
-				} else {
-					$cropMethod = get_option($s.'_crop');
-				}
-				if ($cropMethod == 0) {
+
+				if ($sizesSettings[$s]['crop_method'] == 0) {
 					continue;
 				}
 
@@ -92,6 +100,10 @@ class ManualImageCropEditorWindow {
 					exit;
 				}
 				$src_file = str_replace($uploadsDir['baseurl'], $uploadsDir['basedir'], $src_file_url[0]);
+                // If the file doesn't exist locally get the size from the URL
+                if (!file_exists($src_file)) {
+                    $src_file = $src_file_url[0];
+                }
 				$sizes = getimagesize($src_file);
 
 				$previewWidth = min($sizes[0], 500);
