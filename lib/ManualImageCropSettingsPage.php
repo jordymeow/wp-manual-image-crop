@@ -147,9 +147,12 @@ class MicSettingsPage
 			  </tr>
 			 </thead>
              <tbody>';
-		
-		$sizesSettings = self::getSettings() || array();
-		
+
+		$sizesSettings = self::getSettings();
+        if (!$sizesSettings) {
+            $sizesSettings = [];
+        }
+
 		foreach ($imageSizes as $s) {
 			$label = isset($sizeLabels[$s]) ? $sizeLabels[$s] : ucfirst( str_replace( '-', ' ', $s ) );
 			if (isset($_wp_additional_image_sizes[$s])) {
