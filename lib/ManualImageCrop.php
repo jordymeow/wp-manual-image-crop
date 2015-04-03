@@ -173,7 +173,6 @@ setInterval(function() {
         exit;
       }
 
-
       $src_file = str_replace( $uploadsDir['baseurl'], $uploadsDir['basedir'], $src_file_url[0] );
       $dst_file = str_replace( $uploadsDir['baseurl'], $uploadsDir['basedir'], $dst_file_url[0] );
     }
@@ -223,7 +222,6 @@ setInterval(function() {
 																	'h' => $_POST['select']['h'],
 																	'scale' => $_POST['previewScale'],
 																);
-		wp_update_attachment_metadata($_POST['attachmentId'], $imageMetadata);
 		
 		$quality = intval($_POST['mic_quality']);
 
@@ -282,9 +280,6 @@ setInterval(function() {
             	exit;
         	}
         }
-
-        // Move to CDN if an action is available
-        do_action('move_to_cdn', $_POST['attachmentId'], $dst_file);
         
 		// Generate Retina Image
 		if( isset( $_POST['make2x'] ) && $_POST['make2x'] === 'true' ) {
@@ -330,14 +325,13 @@ setInterval(function() {
 					}
 				}
 			}
-
-            // Move to CDN if an action is available
-            do_action('move_to_cdn', $_POST['attachmentId'], $dst_file2x);
 		}
 		// update 'mic_make2x' option status to persist choice  
 		if( isset( $_POST['make2x'] ) && $_POST['make2x'] !== get_option('mic_make2x') ) {
 			update_option('mic_make2x', $_POST['make2x']);
 		}
+
+		wp_update_attachment_metadata($_POST['attachmentId'], $imageMetadata);
 
 		//returns the url to the generated image (to allow refreshing the preview)
 		echo json_encode (array('status' => 'ok', 'file' => $dst_file_url[0] ) );
