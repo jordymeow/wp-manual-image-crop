@@ -21,39 +21,40 @@ add_option('mic_make2x', 'true'); //Add option so we can persist make2x choice a
  * inits the plugin
  */
 function mic_init_plugin() {
-	// We're gonna use our plugin in the admin area only, so ends here if it's a frontend
-	if ( ! is_admin()) return;
-	
-	include_once(dirname(__FILE__) . '/lib/ManualImageCrop.php');
+    // We're gonna use our plugin in the admin area only, so ends here if it's a frontend
+    if (!is_admin()) return;
 
-	load_plugin_textdomain('microp', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+    include_once(dirname(__FILE__) . '/lib/ManualImageCrop.php');
 
-	$ManualImageCrop = ManualImageCrop::getInstance();
-	add_action( 'admin_enqueue_scripts', array($ManualImageCrop, 'enqueueAssets') );
-	$ManualImageCrop->addEditorLinks();
+    load_plugin_textdomain('microp', false, dirname(plugin_basename(__FILE__)) . '/languages');
 
-	//attach admin actions
-	add_action('wp_ajax_mic_editor_window', 'mic_ajax_editor_window');
-	add_action('wp_ajax_mic_crop_image', 'mic_ajax_crop_image');
+    $ManualImageCrop = ManualImageCrop::getInstance();
+    add_action('admin_enqueue_scripts', array($ManualImageCrop, 'enqueueAssets'));
+    $ManualImageCrop->addEditorLinks();
+
+    //attach admin actions
+    add_action('wp_ajax_mic_editor_window', 'mic_ajax_editor_window');
+    add_action('wp_ajax_mic_crop_image', 'mic_ajax_crop_image');
 }
 
 /**
  * ajax call rendering the image cropping area
  */
 function mic_ajax_editor_window() {
-	include_once(dirname(__FILE__) . '/lib/ManualImageCropEditorWindow.php');
-	$ManualImageCropEditorWindow = ManualImageCropEditorWindow::getInstance();
-	$ManualImageCropEditorWindow->renderWindow();
-	exit;
+    include_once(dirname(__FILE__) . '/lib/ManualImageCropEditorWindow.php');
+    $ManualImageCropEditorWindow = ManualImageCropEditorWindow::getInstance();
+    $ManualImageCropEditorWindow->renderWindow();
+    exit;
 }
 
 /**
  * ajax call that does the cropping job and overrides the previous image version
  */
 function mic_ajax_crop_image() {
-	include_once(dirname(__FILE__) . '/lib/ManualImageCropSettingsPage.php');
-	$ManualImageCrop = ManualImageCrop::getInstance();
-	$ManualImageCrop->cropImage();
-	exit;
+    include_once(dirname(__FILE__) . '/lib/ManualImageCropSettingsPage.php');
+    $ManualImageCrop = ManualImageCrop::getInstance();
+    $ManualImageCrop->cropImage();
+    exit;
 }
+
 ;
