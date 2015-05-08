@@ -171,7 +171,6 @@ setInterval(function() {
             $uploadsDir['baseurl'] = preg_replace('#^http://#i', 'https://', $uploadsDir['baseurl']);
         }
 
-
         if (function_exists('_load_image_to_edit_path')) {
             // this function is consider as private, but it return proper image path. Notice it is in function_exists condition
             $src_file = _load_image_to_edit_path($_POST['attachmentId'], 'full');
@@ -188,6 +187,24 @@ setInterval(function() {
             $dst_file = str_replace($uploadsDir['baseurl'], $uploadsDir['basedir'], $dst_file_url[0]);
         }
 
+        /*
+         * This replicate the code found in wp/wp-admin/includes/image-edit.php
+         * to append a random stamp to all new images.  This helps with cache busting.
+         * Regex removed the $ as we can have a sized image here.  check for - and put back
+         */
+        $orig_fullsizepath = $dst_file;
+        $path_parts = pathinfo( $dst_file );
+        $filename = $path_parts['filename'];
+        $suffix = time() . rand(100, 999);
+        $filename = preg_replace( '/-e([0-9]+)-/', "-e{$suffix}-", $filename );
+        $new_fullsizepath = "{$path_parts['dirname']}/{$filename}.{$path_parts['extension']}";
+        rename($dst_file, $new_fullsizepath);
+        $dst_file = $new_fullsizepath;
+
+        // Update the $dst_file_url to have new filename for preview to work after the resize occurs
+        $original_dst_file_url = $dst_file_url[0];
+        $dst_file_url[0] = str_replace(basename($orig_fullsizepath), basename($dst_file), $dst_file_url[0]);
+
         //checks if the destination image file is present (if it's not, we want to create a new file, as the WordPress returns the original image instead of specific one)
         if ($dst_file == $src_file) {
             $attachmentData = wp_generate_attachment_metadata($_POST['attachmentId'], $dst_file);
@@ -198,7 +215,7 @@ setInterval(function() {
             //saves new path to the image size in the database
             wp_update_attachment_metadata($_POST['attachmentId'], $attachmentData);
 
-            //retrieves the new url to file (needet to refresh the preview)
+            //retrieves the new url to file (needed to refresh the preview)
             $dst_file_url = wp_get_attachment_image_src($_POST['attachmentId'], $_POST['editedSize']);
         }
 
@@ -233,6 +250,8 @@ setInterval(function() {
             'h' => $_POST['select']['h'],
             'scale' => $_POST['previewScale'],
         );
+        // Set the edited size to the new filename
+        $imageMetadata['sizes'][$_POST['editedSize']]['file'] = basename($dst_file);
 
         $quality = intval($_POST['mic_quality']);
 
@@ -345,7 +364,7 @@ setInterval(function() {
         wp_update_attachment_metadata($_POST['attachmentId'], $imageMetadata);
 
         //returns the url to the generated image (to allow refreshing the preview)
-        echo json_encode(array('status' => 'ok', 'file' => $dst_file_url[0]));
+        echo json_encode(array('status' => 'ok', 'file' => $dst_file_url[0], 'original_file' => $original_dst_file_url));
         exit;
     }
 }

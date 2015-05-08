@@ -17,10 +17,11 @@ jQuery(document).ready(function($) {
 			if (response.status == 'ok') {
 				var newImage = new Image();
 				newImage.src = response.file + '?' + Math.random();
+				var originalImageSrc = response.original_file;
 				var count = 0;
 				function updateImage() {
 				    if(newImage.complete) {
-				        $('img[src^="' + response.file + '"]').attr('src', newImage.src);
+				        $('img[src^="' + originalImageSrc + '"]').attr('src', newImage.src);
 						$('#micCropImage').show();
 						$('#micSuccessMessage').show().delay(5000).fadeOut();
 						$('#micLoading').hide();
