@@ -196,7 +196,16 @@ setInterval(function() {
         $path_parts = pathinfo( $dst_file );
         $filename = $path_parts['filename'];
         $suffix = time() . rand(100, 999);
-        $filename = preg_replace( '/-e([0-9]+)-/', "-e{$suffix}-", $filename );
+        // If we have a version already replace it
+        if (preg_match('/-e([0-9]+)-?/', $filename)) {
+            $filename = preg_replace( '/-e([0-9]+)-?/', "-e{$suffix}-", $filename );
+        } elseif (preg_match('/-([\d]+x[\d]+)/', $filename)) {
+            // No version but we do have an image size
+            $filename .= preg_replace( '/-([\d]+x[\d]+)/', "-e{$suffix}-$1", $filename );
+        } else {
+            // Original image
+            $filename .= "-e{$suffix}";
+        }
         $new_fullsizepath = "{$path_parts['dirname']}/{$filename}.{$path_parts['extension']}";
         rename($dst_file, $new_fullsizepath);
         $dst_file = $new_fullsizepath;
@@ -362,7 +371,7 @@ setInterval(function() {
         }
 
         wp_update_attachment_metadata($_POST['attachmentId'], $imageMetadata);
-
+error_log(print_r(array('status' => 'ok', 'file' => $dst_file_url[0], 'original_file' => $original_dst_file_url),1));
         //returns the url to the generated image (to allow refreshing the preview)
         echo json_encode(array('status' => 'ok', 'file' => $dst_file_url[0], 'original_file' => $original_dst_file_url));
         exit;
